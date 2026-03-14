@@ -8,35 +8,33 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Build archive (no signing)
+      - name: Archive app
         run: |
           xcodebuild \
           -project "BLE Terminal.xcodeproj" \
           -scheme "BLE Terminal" \
           -sdk iphoneos \
           -configuration Release \
-          -archivePath $PWD/build/BLETerminal.xcarchive \
+          -archivePath build/BLETerminal.xcarchive \
           CODE_SIGNING_ALLOWED=NO \
           archive
 
-      - name: Create IPA folder
-        run: mkdir -p build/ipa
-
       - name: Export IPA
         run: |
+          mkdir -p build/ipa
           xcodebuild \
-          -exportArchive \
-          -archivePath build/BLETerminal.xcarchive \
-          -exportOptionsPlist ExportOptions.plist \
-          -exportPath build/ipa
+            -exportArchive \
+            -archivePath build/BLETerminal.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist ExportOptions.plist \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Upload IPA artifact
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: BLE-Terminal-IPA
